@@ -7,6 +7,7 @@ import App
 import Control.Concurrent
 import Control.Monad
 import Control.Monad.Catch
+import Control.Monad.Logger
 import Control.Monad.Reader
 import Data.Text (Text)
 import qualified Data.Text as T
@@ -42,7 +43,9 @@ formatResult req SunTimes {..} loc =
     fmt t = T.pack $ formatTime loc "%X %Z" t
 
 processRequest :: Text -> MyApp Text
-processRequest t = processR (parseRequestLine (T.strip t))
+processRequest t = do
+    logInfoN $ "Processing request: " <> t
+    processR (parseRequestLine (T.strip t))
   where
     processR (Left e) = throwM (FormatError e)
     processR (Right (addr, day)) = do
