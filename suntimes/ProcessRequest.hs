@@ -62,8 +62,9 @@ processMany = mapM_ processRequestWrapper
                `finally` delaySec 3
     delaySec sec = liftIO $ threadDelay (sec * 1000000)
     handler :: Text -> SunInfoException -> MyApp ()
-    handler r e = liftIO $ TIO.putStrLn $ "Error in request '" <> r <> "': "
-                         <> T.pack (show e)
+    handler r e = do
+      liftIO $ TIO.putStrLn $ "Error in request '" <> r <> "': " <> T.pack (show e) -- log to stdout
+      logErrorN $ "Error in request '" <> r <> "': " <> T.pack (show e) -- log to log
 
 processInteractively :: MyApp ()
 processInteractively = action `catch` handler
