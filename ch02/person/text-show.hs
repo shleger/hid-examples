@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-import TextShow
 import Person
+import TextShow
 
 instance TextShow Person where
   showb (Person name Nothing) = fromString name

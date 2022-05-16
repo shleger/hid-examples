@@ -1,18 +1,24 @@
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+
+{-# HLINT ignore "Redundant <$>" #-}
+{-# HLINT ignore "Use first" #-}
 module ShuntingYard (convertToExpr) where
 
-import Data.Char (isDigit, isSpace)
-import Data.List (groupBy)
-import Data.Foldable (traverse_)
 import Control.Monad.State
-
+import Data.Char (isDigit, isSpace)
+import Data.Foldable (traverse_)
+import Data.List (groupBy)
 import Expr
 
 -- Implementation of the Shunting-yard algorithm
 -- https://en.wikipedia.org/wiki/Shunting-yard_algorithm
 
 type Token = String
+
 type Stack = [Token]
+
 type Output = [Expr Integer]
+
 type SYState = (Stack, Output)
 
 isEmpty :: State SYState Bool
@@ -30,7 +36,7 @@ pop = do
   put (tail s, es) -- let it crash on empty stack
   pure (head s)
 
-pop_ :: State SYState ()  -- let it crash on empty stack
+pop_ :: State SYState () -- let it crash on empty stack
 pop_ = modify (\(s, es) -> (tail s, es))
 
 push :: Token -> State SYState ()
@@ -63,7 +69,7 @@ precedence "*" = 2
 precedence _ = 0
 
 precGTE :: String -> String -> Bool
-t1 `precGTE` t2 = precedence t1 >= precedence t2
+t1 `precGTE` t2 = precedence t1 >= precedence t2 --  precGTE "*" "+" => True
 
 convertToExpr :: String -> Expr Integer
 convertToExpr str = head $ snd $ execState shuntingYard ([], [])
@@ -77,10 +83,10 @@ convertToExpr str = head $ snd $ execState shuntingYard ([], [])
     processToken t
       | isOp t = transferWhile (`precGTE` t) >> push t
       | otherwise = output t -- number
-
     transfer = pop >>= output
     transferWhile predicate = whileNotEmptyAnd predicate transfer
     transferRest = transferWhile (const True)
 
-    tokenize = groupBy (\a b -> isDigit a && isDigit b)
-               . filter (not . isSpace)
+    tokenize =
+      groupBy (\a b -> isDigit a && isDigit b)
+        . filter (not . isSpace)

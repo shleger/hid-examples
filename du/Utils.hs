@@ -1,31 +1,32 @@
 module Utils where
 
+import App
 import Data.Foldable (traverse_)
 import System.Directory
 
-import App
-
 traverseDirectoryWith :: MyApp le s () -> MyApp le s ()
 traverseDirectoryWith app = do
-    curPath <- asks path
-    content <- liftIO $ listDirectory curPath
-    traverse_ go content
+  curPath <- asks path
+  content <- liftIO $ listDirectory curPath
+  traverse_ go content
   where
-    go name = flip local app
-              $ \env -> env {
-                  path = path env </> name,
-                  depth = depth env + 1
-                }
+    go name = flip local app $ -- TODO why here is flip ??
+      \env ->
+        env
+          { path = path env </> name,
+            depth = depth env + 1
+          }
 
 traverseDirectoryWith' :: MyApp le s () -> MyApp le s ()
 traverseDirectoryWith' app =
-    asks path >>= liftIO . listDirectory >>= traverse_ go
+  asks path >>= liftIO . listDirectory >>= traverse_ go
   where
-    go name = flip local app
-              $ \env -> env {
-                  path = path env </> name,
-                  depth = depth env + 1
-                }
+    go name = flip local app $
+      \env ->
+        env
+          { path = path env </> name,
+            depth = depth env + 1
+          }
 
 currentPathStatus :: MyApp l s FileStatus
 currentPathStatus = do

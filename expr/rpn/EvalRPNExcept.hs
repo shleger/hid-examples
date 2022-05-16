@@ -2,28 +2,23 @@
 
 module EvalRPNExcept where
 
-import Control.Monad.State
-import Control.Monad.Reader
 import Control.Monad.Except
+import Control.Monad.Reader
+import Control.Monad.State
 import Data.Char
+import Data.Foldable (traverse_)
 import Data.Text (Text)
 import qualified Data.Text as T
 import Data.Text.Read
 import TextShow
-import Data.Foldable (traverse_)
 
-data EvalError = NotEnoughElements
-               | ExtraElements
-               | NotANumber Text
-               | UnknownVar Text
+data EvalError = NotEnoughElements | ExtraElements | NotANumber Text | UnknownVar Text
 
 instance TextShow EvalError where
   showb NotEnoughElements = "Not enough elements in the expression"
   showb ExtraElements = "There are extra elements in the expression"
-  showb (NotANumber t) = "Expression component '" <>
-                         fromText t <> "' is not a number"
-  showb (UnknownVar t) = "Variable '" <>
-                         fromText t <> "' not found"
+  showb (NotANumber t) = "Expression component '" <> fromText t <> "' is not a number"
+  showb (UnknownVar t) = "Variable '" <> fromText t <> "' not found"
 
 type Stack = [Integer]
 
@@ -32,14 +27,14 @@ type EnvVars = [(Text, Integer)]
 type EvalM = ReaderT EnvVars (ExceptT EvalError (State Stack))
 
 push :: Integer -> EvalM ()
-push x = modify (x:)
+push x = modify (x :)
 
 pop :: EvalM Integer
 pop = get >>= pop'
   where
     pop' :: Stack -> EvalM Integer
     pop' [] = throwError NotEnoughElements
-    pop' (x:xs) = put xs >> pure x
+    pop' (x : xs) = put xs >> pure x
 
 oneElementOnStack :: EvalM ()
 oneElementOnStack = do
@@ -66,9 +61,9 @@ readSafe t
   where
     isId txt = maybe False (isLetter . fst) (T.uncons txt)
 
-evalRPNOnce ::Text -> EvalM Integer
+evalRPNOnce :: Text -> EvalM Integer
 evalRPNOnce str =
-    clearStack >> traverse_ step (T.words str) >> oneElementOnStack >> pop
+  clearStack >> traverse_ step (T.words str) >> oneElementOnStack >> pop
   where
     clearStack = put []
     step "+" = processTops (+)
@@ -78,11 +73,13 @@ evalRPNOnce str =
     processTops op = flip op <$> pop <*> pop >>= push
 
 evalRPNMany :: [Text] -> EnvVars -> Text
-evalRPNMany txts env = reportEvalResults $
+evalRPNMany txts env =
+  reportEvalResults $
     evalState (runExceptT (runReaderT (mapM evalOnce txts) env)) []
   where
-    evalOnce txt = (fromText txt <>) <$>
-      (buildOk <$> evalRPNOnce txt) `catchError` (pure . buildErr)
+    evalOnce txt =
+      (fromText txt <>)
+        <$> (buildOk <$> evalRPNOnce txt) `catchError` (pure . buildErr)
     buildOk res = " = " <> showb res
     buildErr err = " Error: " <> showb err
 

@@ -1,7 +1,10 @@
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+
+{-# HLINT ignore "Eta reduce" #-}
 module AppRWST where
 
-import Control.Monad.RWS
 import AppTypes
+import Control.Monad.RWS
 
 type MyApp logEntry state = RWST AppEnv [logEntry] state IO
 

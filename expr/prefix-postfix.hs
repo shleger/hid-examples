@@ -1,5 +1,7 @@
-import Data.List (intersperse)
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 
+{-# HLINT ignore "Use unwords" #-}
+import Data.List (intersperse)
 import Expr
 import ShuntingYard
 
@@ -14,11 +16,11 @@ exprTo form (Mult e1 e2) = binOp "*" form e1 e2
 
 binOp :: Show a => String -> ExprForm -> Expr a -> Expr a -> String
 binOp op form e1 e2 = concat $ intersperse " " (args form)
-   where
-     e1' = exprTo form e1
-     e2' = exprTo form e2
-     args Prefix = [op, e1', e2']
-     args Postfix = [e1', e2', op]
+  where
+    e1' = exprTo form e1
+    e2' = exprTo form e2
+    args Prefix = [op, e1', e2']
+    args Postfix = [e1', e2', op]
 
 main :: IO ()
 main = mapM_ printExpr strs

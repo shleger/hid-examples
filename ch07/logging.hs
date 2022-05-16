@@ -1,22 +1,25 @@
-{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TemplateHaskell #-}
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 
-import Data.Text
+{-# HLINT ignore "Move brackets to avoid $" #-}
+
+import Control.Monad.Logger
 import Control.Monad.Trans
 import Control.Monad.Trans.State
-import Control.Monad.Logger
+import Data.Text
 
 popAndLog :: LoggingT (StateT [Int] IO) ()
 popAndLog = do
-  _:xs <- lift get
+  _ : xs <- lift get
   lift (put xs)
-  $logDebug ("***" <> (pack $ show xs) <> "***")
+  $logDebug ("**" <> (pack $ show xs) <> "***")
 
 logStateEx :: LoggingT (StateT [Int] IO) Int
-logStateEx =  do
+logStateEx = do
   popAndLog
   popAndLog
   pure 5
 
 main :: IO ()
-main = runStateT (runStdoutLoggingT logStateEx) [1,2,3] >>= print
+main = runStateT (runStdoutLoggingT logStateEx) [1, 2, 3] >>= print

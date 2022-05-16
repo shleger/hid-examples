@@ -1,22 +1,23 @@
-{-# LANGUAGE RecordWildCards, FlexibleContexts #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE RecordWildCards #-}
 
 module ProcessRequest (processMany, processInteractively) where
 
+import App
+import Control.Concurrent
+import Control.Monad
 import Control.Monad.Catch
-import Data.Text(Text)
+import Control.Monad.Reader
+import Data.Text (Text)
 import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
 import Data.Time
-import Control.Monad
-import Control.Monad.Reader
-
-import Control.Concurrent
-
-import App
-import Types
 import GeoCoordsReq
-import SunTimes
 import STExcept
+import SunTimes
+import Types
+
+{- ORMOLU_DISABLE -}
 
 parseRequestLine :: Text -> Either RequestError (Text, When)
 parseRequestLine txt = parse (split txt)

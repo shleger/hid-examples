@@ -1,14 +1,20 @@
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+
+{-# HLINT ignore "Replace case with maybe" #-}
+{-# HLINT ignore "Use gets" #-}
+{-# HLINT ignore "Use traverse_" #-}
 module EvalRPNTrans where
 
-import Control.Monad.State
 import Control.Applicative
+import Control.Monad.State
 import Text.Read (readMaybe)
 
 type Stack = [Integer]
+
 type EvalM = StateT Stack Maybe
 
 push :: Integer -> EvalM ()
-push x = modify (x:)
+push x = modify (x :)
 
 pop' :: EvalM Integer
 pop' = do
@@ -26,7 +32,7 @@ pop'' = do
 
 pop :: EvalM Integer
 pop = do
-  (x:xs) <- get
+  (x : xs) <- get
   put xs
   pure x
 
@@ -48,5 +54,5 @@ evalRPN str = evalStateT evalRPN' []
     step "+" = processTops (+)
     step "*" = processTops (*)
     step "-" = processTops (-)
-    step t   = readSafe t >>= push
+    step t = readSafe t >>= push
     processTops op = flip op <$> pop <*> pop >>= push

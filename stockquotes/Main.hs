@@ -1,37 +1,39 @@
-{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RecordWildCards #-}
 
 module Main where
 
-import Control.Monad (when, unless)
+import Charts
+import Control.Monad (unless, when)
 import qualified Data.ByteString.Lazy as BL (readFile, writeFile)
 import Data.Csv (decodeByName)
 import Data.Foldable (toList)
 import Data.Text (unpack)
-
-import QuoteData
-import Charts
-import StatReport
 import HtmlReport
 import Params
+import QuoteData
+import StatReport
 
-generateReports :: (Functor t, Foldable t) =>
-                   Params -> t QuoteData -> IO ()
+generateReports ::
+  (Functor t, Foldable t) =>
+  Params ->
+  t QuoteData ->
+  IO ()
 generateReports Params {..} quotes = do
   unless silent $ putStr textRpt
   when chart $ plotChart title quotes chartFname
   saveHtml htmlFile htmlRpt
- where
-   statInfo' = statInfo quotes
-   textRpt = textReport statInfo'
-   htmlRpt = htmlReport title quotes statInfo' [chartFname | chart]
+  where
+    statInfo' = statInfo quotes
+    textRpt = textReport statInfo'
+    htmlRpt = htmlReport title quotes statInfo' [chartFname | chart]
 
-   withCompany prefix = maybe mempty (prefix <>) company
-   chartFname = unpack $ "chart" <> withCompany "_" <> ".svg"
-   title = unpack $ "Historical Quotes" <> withCompany " for "
+    withCompany prefix = maybe mempty (prefix <>) company
+    chartFname = unpack $ "chart" <> withCompany "_" <> ".svg"
+    title = unpack $ "Historical Quotes" <> withCompany " for "
 
-   saveHtml Nothing _ = pure ()
-   saveHtml (Just f) html = BL.writeFile f html
+    saveHtml Nothing _ = pure ()
+    saveHtml (Just f) html = BL.writeFile f html
 
 work :: Params -> IO ()
 work params = do

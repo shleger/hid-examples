@@ -3,10 +3,10 @@
 module Charts (plotChart) where
 
 import Data.Foldable (toList)
-import Graphics.Rendering.Chart.Easy hiding (close, label, bars)
 import Graphics.Rendering.Chart.Backend.Diagrams
-
+import Graphics.Rendering.Chart.Easy hiding (bars, close, label)
 import QuoteData
+{- ORMOLU_DISABLE -}
 
 plotChart :: Foldable t =>
              String
@@ -69,3 +69,5 @@ plotChart title quotes fname = do
        line_width .~ n
      $ line_color .~ opaque color
      $ def
+
+{- ORMOLU_ENABLE -}

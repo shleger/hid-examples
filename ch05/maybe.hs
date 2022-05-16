@@ -24,7 +24,8 @@ plusStrNumbers s1 s2 = (+) <$> readMaybe s1 <*> readMaybe s2
 
 locateByName :: PhoneNumbers -> Locations -> Name -> Maybe Location
 locateByName pnumbers locs name =
-  lookup name pnumbers >>= flip lookup locs
+  lookup name pnumbers >>= flip lookup locs --bind
+
 -- ^ We’ve had to flip arguments for lookup to get a function suitable
 --   for the monadic binding (the flip lookup locs subexpression has
 --   the required Phone -> Maybe Location type)

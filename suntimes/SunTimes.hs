@@ -1,23 +1,24 @@
-{-# LANGUAGE RecordWildCards #-}
-{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DeriveAnyClass #-}
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE RecordWildCards #-}
 
 module SunTimes (getSunTimes) where
 
-import Data.Aeson
-import Network.HTTP.Req
+import App
 import Control.Monad.Catch
 import Control.Monad.Reader
+import Data.Aeson
 import qualified Data.Text as T
 import Data.Time
 import GHC.Generics
-
-import Types
+import Network.HTTP.Req
 import STExcept
-import App
+import Types
 
 newtype SunTimesWrapper dt = SunTimesWrapper {results :: SunTimes dt}
   deriving (Show, Generic, FromJSON)
+
+{- ORMOLU_DISABLE -}
 
 getSunTimesUTC :: GeoCoords -> When -> MyApp (SunTimes UTCTime)
 getSunTimesUTC GeoCoords {..} w =
